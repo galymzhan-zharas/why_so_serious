@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/NuEventTeam/chat/database"
 	"github.com/gorilla/websocket"
 )
 
@@ -105,6 +106,26 @@ func (c *Client) readMessage(ctx context.Context) {
 			log.Println(err)
 		}
 
+		if battleReq.Command == "answer" {
+
+			if battleReq.Question.IsCorrect {
+				db := database.DB.GetDb()
+				log.Println("here-----")
+				query := `UPDATE battle_questions AS bq
+				SET 
+					player1 = CASE WHEN b.player1 = $1 THEN true ELSE bq.player1 END,
+					player2 = CASE WHEN b.player2 = $1 THEN true ELSE bq.player2 END
+				FROM battles AS b
+				WHERE 
+					bq.battle_id = b.custom_id 
+					AND (b.player1 = $1 OR b.player2 = $1) 
+					AND b.custom_id = $2 
+					AND bq.question_id = $3;`
+				_, err := db.Exec(context.Background(), query, c.ClientId, battleReq.BattleId, battleReq.Question.Id)
+				log.Println(err)
+			}
+		}
+
 		c.Manager.messageBattle <- Message{
 			BattleId: battleReq.BattleId,
 			Payload:  payload,
@@ -140,7 +161,6 @@ type BattleRequest struct {
 	BattleId int64    `json:"battleId"`
 	Command  string   `json:"command"`
 	LeagueId int64    `json:"laguesId"`
-	Correct  bool     `json:"correct`
 	Question Question `json:"question"`
 }
 
@@ -153,7 +173,6 @@ type Question struct {
 	Id        int64           `json:"questionId"`
 	Module    string          `json:"module"`
 	Payload   json.RawMessage `json:"payload"`
-	Correct   int64           `json:"correct"`
 	IsCorrect bool            `json:"isCorrect"`
 }
 
