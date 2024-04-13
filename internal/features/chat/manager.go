@@ -1,9 +1,12 @@
 package chat
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"sync"
+
+	"github.com/NuEventTeam/chat/database"
 )
 
 var ChatManager *Manager
@@ -40,6 +43,9 @@ func (m *Manager) LeaveQueue(client *Client) {
 
 	if event, ok := m.Leagues[client.LeagueId]; ok {
 		if client, ok := event[client.ClientId]; ok {
+			query := `delete from player_queue where player_id = $1`
+			db := database.DB.GetDb()
+			db.Exec(context.Background(), query, client.ClientId)
 			delete(m.Leagues[client.LeagueId], client.ClientId)
 			close(client.SendMsgChan)
 		}

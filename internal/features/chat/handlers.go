@@ -35,12 +35,14 @@ func joinBattleHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func addPlayerToQueue(playerId int64, leagueId int64) error {
+
 	query := qb.Insert("player_queue").Columns("player_id", "league_id").Values(playerId, leagueId)
 
 	stmt, args, err := query.ToSql()
 	if err != nil {
 		return err
 	}
+
 	db := database.DB.GetDb()
 
 	_, err = db.Exec(context.Background(), stmt, args...)
