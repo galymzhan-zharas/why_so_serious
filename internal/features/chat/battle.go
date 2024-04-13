@@ -18,7 +18,7 @@ func (m *Manager) NewBattle(players []*Client) error {
 
 	m.AddBattle(battleId, players)
 
-	questions, err := getQuestions()
+	questions, err := getQuestions(battleId)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -185,8 +185,8 @@ func updatePlayerQueue(ids ...int64) error {
 	return err
 }
 
-func getQuestions() ([]Question, error) {
-	query := `SELECT *
+func getQuestions(battleId int64) ([]Question, error) {
+	query := `SELECT id,module,content
 	FROM (
 		SELECT id,module,content
 		FROM questions
@@ -195,16 +195,16 @@ func getQuestions() ([]Question, error) {
 		LIMIT 1
 	) AS m1
 	UNION ALL
-	SELECT *
+	SELECT id,module,content
 	FROM (
 		SELECT id,module,content
 		FROM questions
-		WHERE module = 'vocabular'
+		WHERE module = 'vocabulary'
 		ORDER BY RANDOM()
 		LIMIT 1
 	) AS m2
 	UNION ALL
-	SELECT 
+	SELECT id,module,content
 	FROM (
 		SELECT id,module,content
 		FROM questions
@@ -233,8 +233,8 @@ func getQuestions() ([]Question, error) {
 		questionIds = append(questionIds, q.Id)
 	}
 
-	query = `insert into battle_questions(battle_id,question_id) values($1,$2),values($1,$3),values($1,$4)`
-	_, err = db.Exec(context.Background(), query, questionIds[0], questionIds[1], questionIds[2])
+	query = `insert into battle_questions(battle_id,question_id) values($1,$2),($1,$3),($1,$4)`
+	_, err = db.Exec(context.Background(), query, battleId, questionIds[0], questionIds[1], questionIds[2])
 	if err != nil {
 		return nil, err
 	}
