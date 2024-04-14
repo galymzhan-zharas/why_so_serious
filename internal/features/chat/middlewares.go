@@ -20,7 +20,7 @@ func Authorize(next http.HandlerFunc) http.HandlerFunc {
 
 		// token := strings.Split(authHeader[0], " ")[1]
 
-		// userId, userAgent, err := pkg.ParseJWT(token, "my-32-character-ultra-secure-and-ultra-long-secret")
+		// userId, err := pkg.ParseJWT(token, "my-32-character-ultra-secure-and-ultra-long-secret")
 		// if err != nil {
 		// 	w.WriteHeader(http.StatusUnauthorized)
 		// 	w.Write([]byte("Malformed Token"))

@@ -14,8 +14,8 @@ import (
 var projectID = "asd"
 
 func main() {
-	log.Println("running server on 8002")
-	go chat.RunChatServer(8002)
+	log.Println("running server on 8000")
+	go chat.RunChatServer(8000)
 
 	stop := make(chan os.Signal, 1)
 

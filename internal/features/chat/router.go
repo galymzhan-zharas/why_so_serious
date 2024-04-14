@@ -16,6 +16,10 @@ func getRouter() *mux.Router {
 		fmt.Fprintf(writer, "Ok")
 	}).Methods("GET")
 
+	r.HandleFunc("/login", LoginUser).Methods("POST")
+
+	r.HandleFunc("/register", RegisterUser).Methods("POST")
+
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("."+"/static/"))))
 
 	return r
